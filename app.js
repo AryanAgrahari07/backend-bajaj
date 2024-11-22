@@ -18,7 +18,7 @@ const isPrime = (num) => {
 
 // POST endpoint
 app.post("/bfhl", (req, res) => {
-    const { data = [], file_b64 = null } = req.body;
+    const { data = [], selectedOptions = [] } = req.body;  // Accept the selected options (e.g., Numbers, Alphabets, etc.)
 
     // Separate numbers and alphabets
     const numbers = data.filter((item) => !isNaN(item));
@@ -31,27 +31,33 @@ app.post("/bfhl", (req, res) => {
     // Check if there's a prime number
     const isPrimeFound = numbers.some((num) => isPrime(parseInt(num)));
 
-    // Handle file
+    // Filter the data based on selected options
+    let filteredData = [];
+
+    if (selectedOptions.includes("Numbers")) {
+        filteredData = [...filteredData, ...numbers];
+    }
+
+    if (selectedOptions.includes("Alphabets")) {
+        filteredData = [...filteredData, ...alphabets];
+    }
+
+    if (selectedOptions.includes("Highest lowercase alphabet") && highestLowercaseAlphabet) {
+        filteredData.push(highestLowercaseAlphabet);
+    }
+
+    // Handle file (optional)
     let fileValid = false;
     let fileMimeType = null;
     let fileSizeKB = null;
 
-    if (file_b64) {
-        try {
-            const fileBuffer = Buffer.from(file_b64, "base64");
-            fileSizeKB = fileBuffer.length / 1024;
-            fileMimeType = "application/octet-stream"; // Adjust MIME type if needed
-            fileValid = true;
-        } catch (err) {
-            // File invalid
-        }
-    }
-
+    // Return response
     res.status(200).json({
         is_success: true,
         user_id: "Chandrashekhar Choudha_29112002",
         email: "chandrashekharchoudha@gmail.com",
-        roll_number: "0101CS211040",
+        roll_number: "0101CS211040",  // Adjusted as per requirement
+        filtered_data: filteredData,
         numbers,
         alphabets,
         highest_lowercase_alphabet: highestLowercaseAlphabet ? [highestLowercaseAlphabet] : [],
@@ -72,3 +78,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
